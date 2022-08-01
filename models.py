@@ -1,5 +1,7 @@
 from pickletools import read_uint1
 import re
+from this import s
+from tkinter.filedialog import asksaveasfile
 from tkinter.tix import INCREASING
 from colorama import Style
 
@@ -564,3 +566,14 @@ for el in board:
             continue
         print(i.__str__(), end=' ')
     print(Style.RESET_ALL)
+
+    askjasjkkjas
+    asksaveasfiledsdsdsd
+    s
+
+
+    dsdds
+
+
+    dssdds
+    
