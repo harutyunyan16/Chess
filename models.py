@@ -115,6 +115,7 @@ class BoardSquare():
         color = 'white' if self.obj_color == 'white' else 'black'
         figure = figure_detacting(self)
         figure.move(x, y)
+        hit_status = self.in_hit(opponent_color, color)
         
 
 
@@ -134,7 +135,7 @@ class Solider():
 
     def can_move(self, x, y):
         if self.icon == ICONS['soldier_black']:
-            if self.y == y + 1 and self.x == x and board[y][x].empty() or (self.y == 2 and self.x == x and self.y + 2 == y and board[y][x].empty()):
+            if self.y == y + 1 and self.x == x and board[y][x].empty() or (self.y == 7 and self.x == x and self.y - 2 == y and board[y][x].empty()):
                 return True
             elif self.y == y + 1 and self.x == x + 1 and 'black' != board[y][x].obj_color and not board[y][x].empty():
                 return True
@@ -569,6 +570,7 @@ def board_printing():
 
 
 player = 'White'
+
 while True:
     system('clear')
 
@@ -580,14 +582,12 @@ while True:
     if len(pos) > 2:
         continue
     
-    y = detect_y(pos[0])
+    y = detect_y(pos[0].upper())
     x = int(pos[1])
 
     if board[y][x].obj_color != player.lower():
         continue
 
-    print(x, y)
-    sleep(2)
 
     pos = input('Type the move position')
     if len(pos) > 2:
@@ -595,8 +595,6 @@ while True:
     
     y_move = detect_y(pos[0])
     x_move = int(pos[1])
-    print(x_move, y_move)
-    sleep(2)
 
     board[y][x].move(y_move, x_move)
 
