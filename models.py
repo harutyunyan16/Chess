@@ -1,8 +1,5 @@
-from pickletools import read_uint1
-import re
-from this import s
-from tkinter.filedialog import asksaveasfile
-from tkinter.tix import INCREASING
+from os import system
+from time import sleep
 from colorama import Style
 
 
@@ -83,39 +80,41 @@ class BoardSquare():
         self.obj = ' ' 
         self.icon = f'\033[{self.color} {self.obj}'
 
-    def in_hit(self, color):
+    def in_hit(self, color, self_color):
         x = 0
         y = 0
         for i in range(1, 9):
             for el in range(1, 9):
                 if board[i][el].obj_color == color and (board[i][el].obj == ICONS['king_black'] or board[i][el].obj == ICONS['king_white']):
-                    x = el
                     y = i
+                    x = el
         opponents = []
         for i in range(1, 9):
             for j in range(1, 9):
-                if board[i][j].obj_color == color and not board[i][j].empty():
+                if board[i][j].obj_color == self_color and not board[i][j].empty():
                     res = figure_detacting(board[i][j])
                     if res.icon == ICONS['king_white'] or res.icon == ICONS['king_black']:
                         continue
                     opponents.append(res)
+
+        j = 0
         for i in opponents:
-            print(i.icon)
-            if i.move(y, x, True) == True:
+            if i.move(x, y, True) == True:
                 board[y][x].color = BOARD_ICON['yellow']
-                print(board[y][x].color)
-                print(i.icon)
+                board[y][x].setFigure(figure_detacting(board[y][x]))
                 return True
+            j += 1
+
         return False
+
     def __str__(self):
         return self.icon
 
     def move(self, y, x):
         opponent_color = 'white' if self.obj_color == 'black' else 'black'
-        print(opponent_color)
+        color = 'white' if self.obj_color == 'white' else 'black'
         figure = figure_detacting(self)
         figure.move(x, y)
-        print(self.in_hit(opponent_color))
         
 
 
@@ -135,7 +134,7 @@ class Solider():
 
     def can_move(self, x, y):
         if self.icon == ICONS['soldier_black']:
-            if self.y == y + 1 and board[y][x].empty():
+            if self.y == y + 1 and self.x == x and board[y][x].empty() or (self.y == 2 and self.x == x and self.y + 2 == y and board[y][x].empty()):
                 return True
             elif self.y == y + 1 and self.x == x + 1 and 'black' != board[y][x].obj_color and not board[y][x].empty():
                 return True
@@ -144,7 +143,7 @@ class Solider():
             else:
                 return False
         else:
-            if self.y == y - 1 and self.x == x and board[y][x].empty():
+            if self.y == y - 1 and self.x == x and board[y][x].empty() or (self.y == 2 and self.x == x and self.y + 2 == y and board[y][x].empty()):
                 return True
             elif self.y == y - 1 and self.x == x + 1 and 'white' != board[y][x].obj_color and not board[y][x].empty():
                 return True
@@ -249,13 +248,10 @@ class Boat():
         if dont_change == True:
             return self.can_move(x, y)
         if self.can_move(x, y) == True and dont_change == False:
-            print(self.x ,self.y)
-            print(x, y)
             board[self.y][self.x].clear()
             board[y][x].setFigure(self)
             self.x = x
             self.y = y
-            print('boat')
 
 
 class Elephant():
@@ -365,12 +361,10 @@ class Horse():
         if dont_change == True:
             return self.can_move(x, y)
         if self.can_move(x, y) and dont_change == False:
-            print(x, y)
             board[self.y][self.x].clear()
             board[y][x].setFigure(self)
             self.x = x
             self.y = y
-            print('horse')
     
 
     def __str__(self) -> str:
@@ -391,7 +385,6 @@ class King():
         obj_color = 'white' if self.icon == ICONS['king_white'] else 'black'
 
         if not board[y][x].empty() and  obj_color == board[y][x].obj_color:
-            print('this case')
             return (False, False)
 
         (1, 5)
@@ -434,7 +427,6 @@ class King():
 
     def move(self, x, y, dont_change=False):
         if dont_change == True:
-            print('returing case')
             return self.can_move(x, y)
 
         res = self.can_move(x, y)
@@ -484,13 +476,10 @@ class Queen():
         if dont_change == True:
             return self.can_move(x, y)
         if self.can_move(x, y) and dont_change == False:
-            print('chlp -' ,self.x ,self.y)
-            print(x, y)
             board[self.y][self.x].clear()
             board[y][x].setFigure(self)
             self.x = x
             self.y = y
-            print('Queen')
         
 
     def __str__(self) -> str:
@@ -499,15 +488,15 @@ class Queen():
 
 
 board = [
-    ['    A ', 'B ', 'C ', 'D ', 'E ', 'F ', 'G ', 'H'],
-    ['1', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) ],
-    ['2', BoardSquare(BOARD_ICON['black'])  ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) ],
-    ['3', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) ],
-    ['4', BoardSquare(BOARD_ICON['black'])  ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) ],
-    ['5', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) ],
-    ['6', BoardSquare(BOARD_ICON['black'])  ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) ],
-    ['7', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black'])],
-    ['8', BoardSquare(BOARD_ICON['black']) ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) ],
+    ['1', '2', '3', '4', '5', '6', '7', '8'],
+    ['A', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) ],
+    ['B', BoardSquare(BOARD_ICON['black'])  ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) ],
+    ['C', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) ],
+    ['D', BoardSquare(BOARD_ICON['black'])  ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) ],
+    ['E', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) ],
+    ['F', BoardSquare(BOARD_ICON['black'])  ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']) , BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) ],
+    ['G', BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black'])],
+    ['H', BoardSquare(BOARD_ICON['black']) ,BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) , BoardSquare(BOARD_ICON['black']), BoardSquare(BOARD_ICON['white']) ],
 ]
 
 
@@ -546,24 +535,71 @@ for i in range(8):
     black[i].y = i
     board[8][i + 1].setFigure(black[i])
 
-board[2][5].move(3, 5)
-board[3][5].move(4, 5)
-board[1][5].move(4, 6)
-board[7][7].move(6, 7)
-board[6][7].move(5, 7)
-board[5][7].move(4, 7)
-board[8][6].move(6, 8)
-board[6][8].move(5, 7)
-board[4][5].move(5, 5)
-board[4][7].move(4, 6)
 
 
 
-for el in board:
-    for i in el:
-        if i in POSITIONS:
-            (print(f'{BOARD_BLACK}{i}', end=''))
-            continue
-        print(i.__str__(), end=' ')
-    print(Style.RESET_ALL)
+def detect_y(sym: str):
+    vals = {
+        'A': 1,
+        'B': 2,
+        'C': 3,
+        'D': 4,
+        'E': 5,
+        'F': 6,
+        'G': 7,
+        'H': 8
+    }
+    try:
+        return vals[sym]
+    except:
+        return None
 
+
+def board_printing():
+    global board
+    for el in board:
+        for i in el:
+            if i in POSITIONS:
+                (print(f'{BOARD_BLACK}{i}', end=''))
+                continue
+            print(i.__str__(), end=' ')
+        print(Style.RESET_ALL)
+
+
+
+
+player = 'White'
+while True:
+    system('clear')
+
+    x, y = 0, 0
+    board_printing()
+    print(player)
+
+    pos = input('Type the figure position :')
+    if len(pos) > 2:
+        continue
+    
+    y = detect_y(pos[0])
+    x = int(pos[1])
+
+    if board[y][x].obj_color != player.lower():
+        continue
+
+    print(x, y)
+    sleep(2)
+
+    pos = input('Type the move position')
+    if len(pos) > 2:
+        continue
+    
+    y_move = detect_y(pos[0])
+    x_move = int(pos[1])
+    print(x_move, y_move)
+    sleep(2)
+
+    board[y][x].move(y_move, x_move)
+
+    system('clear')
+    player = 'White' if player == 'Black' else 'Black'
+    
