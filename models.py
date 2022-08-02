@@ -567,13 +567,3 @@ for el in board:
         print(i.__str__(), end=' ')
     print(Style.RESET_ALL)
 
-    askjasjkkjas
-    asksaveasfiledsdsdsd
-    s
-
-
-    dsdds
-
-
-    dssdds
-    
