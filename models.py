@@ -1,5 +1,4 @@
 from os import system
-from time import sleep
 from colorama import Style
 
 
@@ -98,9 +97,15 @@ class BoardSquare():
                     opponents.append(res)
 
         j = 0
+        tmp_color = ''
         for i in opponents:
             if i.move(x, y, True) == True:
+                tmp_color = board[y][x].color
                 board[y][x].color = BOARD_ICON['yellow']
+                board[y][x].setFigure(figure_detacting(board[y][x]))
+                return True
+            elif tmp_color != '':
+                board[y][x].color = BOARD_ICON[tmp_color]
                 board[y][x].setFigure(figure_detacting(board[y][x]))
                 return True
             j += 1
@@ -115,7 +120,7 @@ class BoardSquare():
         color = 'white' if self.obj_color == 'white' else 'black'
         figure = figure_detacting(self)
         figure.move(x, y)
-        hit_status = self.in_hit(opponent_color, color)
+        return self.in_hit(opponent_color, color)
         
 
 
@@ -536,68 +541,3 @@ for i in range(8):
     black[i].y = i
     board[8][i + 1].setFigure(black[i])
 
-
-
-
-def detect_y(sym: str):
-    vals = {
-        'A': 1,
-        'B': 2,
-        'C': 3,
-        'D': 4,
-        'E': 5,
-        'F': 6,
-        'G': 7,
-        'H': 8
-    }
-    try:
-        return vals[sym]
-    except:
-        return None
-
-
-def board_printing():
-    global board
-    for el in board:
-        for i in el:
-            if i in POSITIONS:
-                (print(f'{BOARD_BLACK}{i}', end=''))
-                continue
-            print(i.__str__(), end=' ')
-        print(Style.RESET_ALL)
-
-
-
-
-player = 'White'
-
-while True:
-    system('clear')
-
-    x, y = 0, 0
-    board_printing()
-    print(player)
-
-    pos = input('Type the figure position :')
-    if len(pos) > 2:
-        continue
-    
-    y = detect_y(pos[0].upper())
-    x = int(pos[1])
-
-    if board[y][x].obj_color != player.lower():
-        continue
-
-
-    pos = input('Type the move position')
-    if len(pos) > 2:
-        continue
-    
-    y_move = detect_y(pos[0])
-    x_move = int(pos[1])
-
-    board[y][x].move(y_move, x_move)
-
-    system('clear')
-    player = 'White' if player == 'Black' else 'Black'
-    

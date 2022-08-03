@@ -1,4 +1,4 @@
-from .models import BoardSquare
+from models import *
 from colorama import Style
 
 
@@ -34,21 +34,71 @@ for i in range(8):
     board[8][i + 1].setFigure(black[i])
 
 
-board[2][4].move(3, 4)
-board[7][4].move(6, 4)
-board[8][3].move(5, 6)
-board[5][6].move(3, 4)
-board[3][4].move(2, 5)
-board[1][6].move(2, 5)
-board[2][5].move(3, 6)
-board[3][6].move(6, 3)
-board[7][2].move(6, 3)
+def detect_y(sym: str):
+    vals = {
+        'A': 1,
+        'B': 2,
+        'C': 3,
+        'D': 4,
+        'E': 5,
+        'F': 6,
+        'G': 7,
+        'H': 8
+    }
+    try:
+        return vals[sym]
+    except:
+        return None
 
 
-for el in board:
-    for i in el:
-        if i in POSITIONS:
-            (print(f'{BOARD_BLACK}{i}', end=''))
-            continue
-        print(i.__str__(), end=' ')
-    print(Style.RESET_ALL)
+def board_printing():
+    global board
+    for el in board:
+        for i in el:
+            if i in POSITIONS:
+                (print(f'{BOARD_BLACK}{i}', end=''))
+                continue
+            print(i.__str__(), end=' ')
+        print(Style.RESET_ALL)
+
+
+
+
+player = 'White'
+hit_status = False
+while True:
+    system('clear')
+
+    x, y = 0, 0
+    board_printing()
+    print(player)
+
+    pos = input('Type the figure position :')
+    if len(pos) != 2:
+        continue
+    
+    y = detect_y(pos[0].upper())
+    x = int(pos[1])
+
+    if board[y][x].obj_color != player.lower():
+        continue
+
+
+    pos = input('Type the move position')
+    if len(pos) != 2:
+        continue
+    
+    y_move = detect_y(pos[0].upper())
+    x_move = int(pos[1])
+
+    if hit_status == True:
+        state = input('Type "lose" to surrender : ')
+        if state[0] == 'l' or state[0] == 'L':
+            player = 'White' if player == 'Black' else 'Black'
+            print(f'{player} win!!!')
+            exit()
+
+    hit_status = board[y][x].move(y_move, x_move)
+
+    system('clear')
+    player = 'White' if player == 'Black' else 'Black'
